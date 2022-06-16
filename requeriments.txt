@@ -1,0 +1,7 @@
+django
+djangorestframework
+# Herramienta de testing
+pytest
+# Integración con Django
+pytest-django
+

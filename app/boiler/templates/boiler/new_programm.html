@@ -1,0 +1,14 @@
+{% extends "boiler/layout.html" %}
+
+{%block body%}
+<h1> Nuevo programa</h1>
+
+<form action="{%url 'addProgram'%}" method="post">
+    {% csrf_token %} 
+    {{form}}
+    <input type="submit" name="enviar">
+</form>
+
+<a href="{% url 'index' %}">Ver programas</a>
+
+{% endblock %}

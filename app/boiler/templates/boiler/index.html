@@ -1,0 +1,41 @@
+{% extends "boiler/layout.html" %}
+
+{% block body%}
+{% if boilerOn %}
+<h1>
+    Boiler encendido
+    <p>
+    {{boilerOn}}
+    inicio: {{boilerOn.hour}}:{{boilerOn.minutes}} duracion {{boilerOn.duration}} 
+    </p>
+</h1>
+{%else%}
+<h1>Boiler apagado<h1>
+{%endif%}
+
+<form action="{%url 'index'%}" method="post">
+    {% csrf_token %} 
+    {%if boilerOn%}
+    <input type="submit" name="onoff" value="Apagar">
+    {%endif%}
+    {{form}}
+    <input type="submit" name = "onoff" value="Encender">
+</form>
+
+
+<h1>Programación</h1>
+
+<ul>
+{%for programm in programms%}
+    <li>
+        {{ programm }}
+    </li>
+{% empty %}
+    <h2>No hay nada programado</h2>
+{%endfor%}
+</ul>
+
+<a href="{%url 'addProgram' %}"> Nuevo Programa</a>
+
+
+{%endblock%}
