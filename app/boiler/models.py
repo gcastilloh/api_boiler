@@ -16,7 +16,6 @@ class Programs(models.Model):
     minutes = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(59)])
     duration = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(24)])
     active = models.BooleanField(default=True)
-    unic = models.BooleanField(default=False)
     startTime = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(24*60)],default=0)
     endTime = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(48*60)],default=0)
 
@@ -30,8 +29,7 @@ class Programs(models.Model):
 
     def __str__(self):
         active = yesno[self.active]
-        unic = yesno[self.unic]
-        return f"{days[self.day]} a las {self.hour:02}:{self.minutes:02} por {self.duration:02} mins. (activo: {active}, único: {unic}) "
+        return f"{days[self.day]} a las {self.hour:02}:{self.minutes:02} por {self.duration:02} mins. (activo: {active}) "
 
 
 class CurrentProgram(models.Model):

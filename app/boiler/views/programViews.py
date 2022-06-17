@@ -1,4 +1,5 @@
 
+from email.policy import default
 from django.http import HttpResponseRedirect
 
 from rest_framework.reverse import reverse
@@ -16,7 +17,6 @@ from app.boiler.serializers import CurrentProgramSerializer
 from app.boiler.models import *
 
 days_choices = ( 
-    (0,"Hoy"),
     (1,"Lunes"),
     (2,"Martes"),
     (3,"Miercoles"),
@@ -53,37 +53,47 @@ class BoilerOnForm(forms.Form):
 
 def index(request):
     if request.method == "POST":
-        form = BoilerOnForm(request.POST)
-
-        if form.is_valid():
-            if request.POST['onoff'] == "Apagar":
-                records = CurrentProgram.objects.all()
-                records.delete()
-            elif request.POST['onoff'] == "Encender":
-                duration = request.POST['duration']
-
-                print(f"encendiendo {duration}")
-                if duration:
-                    actual = CurrentProgram.objects.all()
-                    actual.delete()
-                    t = time.localtime()
-                    day = t.tm_wday+1            
-                    hour = t.tm_hour
-                    minutes = t.tm_min
-                    data = {
-                        "duration" : duration,
-                        "day":day,                 
-                        "hour": hour,
-                        "minutes": minutes,
-                        }
-                    serializer = CurrentProgramSerializer(data=data)
-                    print("unio")
-                    if serializer.is_valid():
-                        print("dos")
-                        serializer.save()
-                        return HttpResponseRedirect(reverse("index"))
-                    else:
-                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        p = request.POST
+        if request.POST.__contains__("borrar"):
+            if request.POST.getlist("todos"):
+                programs = Programs.objects.all()
+                programs.delete()
+                print("Borrar todos")
+            elif request.POST.getlist("programs"):
+                programs_keys = request.POST.getlist('programs')
+                for program_key in programs_keys:
+                    program = Programs.objects.get(pk=program_key)
+                    program.delete()
+                print(f"Borara algunos {p}")
+            else:
+                print("Nada seleccionado")
+        else:
+            form = BoilerOnForm(request.POST)
+            if form.is_valid():
+                if request.POST['onoff'] == "Apagar":
+                    records = CurrentProgram.objects.all()
+                    records.delete()
+                elif request.POST['onoff'] == "Encender":
+                    duration = request.POST['duration']
+                    if duration:
+                        actual = CurrentProgram.objects.all()
+                        actual.delete()
+                        t = time.localtime()
+                        day = t.tm_wday+1            
+                        hour = t.tm_hour
+                        minutes = t.tm_min
+                        data = {
+                            "duration" : duration,
+                            "day":day,                 
+                            "hour": hour,
+                            "minutes": minutes,
+                            }
+                        serializer = CurrentProgramSerializer(data=data)
+                        if serializer.is_valid():
+                            serializer.save()
+                            return HttpResponseRedirect(reverse("index"))
+                        else:
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return HttpResponseRedirect(reverse("index"))
 
     if request.method == "GET":
@@ -101,7 +111,7 @@ class newProgramForm(forms.Form):
     hour = forms.IntegerField(label="hora",min_value=1,max_value=24)
     minutes = forms.IntegerField(label="minutos",min_value=0,max_value=59)
     duration = forms.ChoiceField(label="duración",choices=duration_choices)
-    active = forms.BooleanField(label="activo",required=False)
+    #active = forms.BooleanField(label="activo",required=False)
 
 
 
@@ -113,21 +123,17 @@ def addProgram(request):
             hour = form.cleaned_data['hour']
             minutes = form.cleaned_data['minutes']
             duration = form.cleaned_data['duration']
-            active = form.cleaned_data['active']
-            unic= day == '0'
-            if unic:
-                day = time.localtime().tm_wday+1
             Programs.objects.create(
                 day = day,
                 hour = hour,
                 minutes = minutes,
                 duration = duration,
-                active = active,
-                unic=unic
+                active = True,
             )
             return HttpResponseRedirect(reverse("index"))
+    t = time.localtime()
     return render(request, "boiler/new_program.html", {
-        "form" : newProgramForm()
+         "form" : newProgramForm(initial={'day':t.tm_wday+1})
     })   
 
 

@@ -6,7 +6,7 @@
 <form action="{%url 'addProgram'%}" method="post">
     {% csrf_token %} 
     {{form}}
-    <input type="submit" name="enviar">
+    <input type="submit" name="enviar" value="Programar">
 </form>
 
 <a href="{% url 'index' %}">Ver programas</a>

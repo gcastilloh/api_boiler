@@ -4,8 +4,6 @@
 
 {% block body%}
 
-
-
 {% if boilerOn %}
 
 <h1>
@@ -16,7 +14,7 @@
     </p>
 </h1>
 {%else%}
-<h1>Boiler apagado<h1>
+<h1>Boiler apagado</h1>
 {%endif%}
 
 <form action="{%url 'index'%}" method="post">
@@ -29,18 +27,29 @@
 </form>
 
 
-<h1>Programación</h1>
+{%if programs%}
 
-<ul>
-    
-{%for program in programs%}
-    <li>
-        {{ program }}
-    </li>
-{% empty %}
+<form action="{%url 'index'%}" method="post">
+        {% csrf_token %} 
+        <p>Programación
+             <input type="submit" name = "borrar" value="Borrar"> 
+             <label><input type="checkbox" name="todos" id="todos"> Todos</label>
+        </p>
+        {%for program in programs%}
+            <li>
+                <label><input type="checkbox" name="programs" value="{{program.id}}"> {{ program }}</label>
+            </li>
+        {%endfor%}
+    </ul>
+</form>
+
+{%else%}
     <h2>No hay nada programado</h2>
-{%endfor%}
-</ul>
+{% endif %}
+
+
+</form>
+
 
 <a href="{%url 'addProgram' %}"> Nuevo Programa</a>
 

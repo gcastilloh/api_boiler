@@ -103,6 +103,8 @@ class CurrentProgramList(APIView):
                     "hour": hour,
                     "minutes": minutes,
                     }
+                actual = CurrentProgram.objects.all()
+                actual.delete()
                 serializer = CurrentProgramSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
