@@ -1,108 +1,25 @@
 
 from django.http import HttpResponseRedirect, JsonResponse
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status 
+
+
 from app.boiler.serializers import ProgramSerializer, CurrentProgramSerializer
 from app.boiler.models import CurrentProgram, Programs
-from app.boiler import serializers
 
-from rest_framework.reverse import reverse
-#from django.urls import reverse
 
-from django.shortcuts import render
-from django import forms
-import requests
 import time
-import socket
 
 # Create your views here.
 
 
+# ------- views for Json and djangoREST ---------------------
 
-days_choices = ( 
-    (0,"Hoy"),
-    (1,"Lunes"),
-    (2,"Martes"),
-    (3,"Miercoles"),
-    (4,"Jueves"),
-    (5,"Viernes"),
-    (6,"Sábado"),
-    (7,"Domingo"),
-    )
-
-duration_choices = (
-    (15,"15 mins"),
-    (30,"30 mins"),
-    (45,"45 mins"),
-    (60,"60mins"),
-    (90,"90 mins"),
-    (120,"120 mins"),
-)
+    
 
 
-
-'''
-Pagina principal
-'''
-
-class BoilerOnForm(forms.Form):
-    duration = forms.ChoiceField(label="duración",choices=duration_choices)
-
-def index(request):
-    if request.method == "POST":
-        form = BoilerOnForm(request.POST)
-        if form.is_valid():
-            if request.POST['onoff'] == "Apagar":
-                pass
-            elif request.POST['onoff'] == "Encender":
-                pass
-            return HttpResponseRedirect(reverse("index"))
-    if request.method == "GET":
-        return render(request,"boiler/index.html",{
-            "programs":Programs.objects.all(),
-            "form" : BoilerOnForm(),
-            "boilerOn":getBolierStatus()
-        })
-
-'''
-Programar un evento
-'''
-class newProgramForm(forms.Form):
-    day = forms.ChoiceField(label="dia",choices=days_choices)
-    hour = forms.IntegerField(label="hora",min_value=1,max_value=24)
-    minutes = forms.IntegerField(label="minutos",min_value=0,max_value=59)
-    duration = forms.ChoiceField(label="duración",choices=duration_choices)
-    active = forms.BooleanField(label="activo",required=False)
-
-
-
-def addProgram(request):
-    if request.method == "POST":
-        form = newProgramForm(request.POST)
-        if form.is_valid():
-            day = form.cleaned_data['day']
-            hour = form.cleaned_data['hour']
-            minutes = form.cleaned_data['minutes']
-            duration = form.cleaned_data['duration']
-            active = form.cleaned_data['active']
-            unic= day == '0'
-            if unic:
-                day = time.localtime().tm_wday+1
-            Programs.objects.create(
-                day = day,
-                hour = hour,
-                minutes = minutes,
-                duration = duration,
-                active = active,
-                unic=unic
-            )
-            return HttpResponseRedirect(reverse("index"))
-    return render(request, "boiler/new_program.html", {
-        "form" : newProgramForm()
-    })
-
-''''
 def boilerOn(request):
     # determina la url completa (eso evitó que tuviera que alambrar aqui 127.0.0.1 o cualquier otra url)
     # tuve que pasar como parámetro el objeto request... eso no me gustó
@@ -116,15 +33,7 @@ def boilerOn(request):
     if response.status_code == 200:
         return response.json()
     return False
-'''
-
-# regresa el json del programa actual si el bolier está encendido
-def getBolierStatus():
-    estado = CurrentProgram.objects.all().first()
-    if estado:
-        return estado
-    return False
-
+    
 def boilerOff(request):
     # determina la url completa (eso evitó que tuviera que alambrar aqui 127.0.0.1 o cualquier otra url)
     # tuve que pasar como parámetro el objeto request... eso no me gustó
@@ -139,20 +48,7 @@ def boilerOff(request):
         return response.json()
     return False
 
-
-
-
-
-# ------- views for Json and djangoREST ---------------------
-def ping(request):
-    data = {"ping":"pong!"}
-    return JsonResponse(data)
-
-class PostPing(APIView):
-    def post(self,request):
-        if len(request.data)==1 and 'name' in request.data:
-            data = { "ping" : "pong "+request.POST['name']}
-        return JsonResponse(data)
+             
 
 
 class ProgramsList(APIView):
@@ -232,3 +128,13 @@ class CurrentProgramList(APIView):
 
 
     
+def ping(request):
+    data = {"ping":"pong!"}
+    return JsonResponse(data)
+
+class PostPing(APIView):
+    def post(self,request):
+        if len(request.data)==1 and 'name' in request.data:
+            data = { "ping" : "pong "+request.POST['name']}
+        return JsonResponse(data)
+

@@ -39,7 +39,7 @@ class CurrentProgram(models.Model):
     day = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(7)])
     hour = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(23)])
     minutes = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(59)])
-    duration = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(24)])
+    duration = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(24*60)])
     startTime = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(24*60)],default=0)
     endTime = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(48*60)],default=0)
 
