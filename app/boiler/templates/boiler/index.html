@@ -10,7 +10,7 @@
     Boiler encendido
     <p>
     {{boilerOn}}
-    inicio: {{boilerOn.hour}}:{{boilerOn.minutes}} duracion {{boilerOn.duration}} 
+    inicio: {{boilerOn.hour}}:{{boilerOn.minutes}} duracion {{boilerOn.duration}} mins
     </p>
 </h1>
 {%else%}
@@ -21,9 +21,10 @@
     {% csrf_token %} 
     {%if boilerOn%}
     <input type="submit" name="onoff" value="Apagar">
+    {%else%}
+    <input type="submit" name = "onoff" value="Encender">
     {%endif%}
     {{form}}
-    <input type="submit" name = "onoff" value="Encender">
 </form>
 
 

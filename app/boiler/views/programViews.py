@@ -26,6 +26,8 @@ days_choices = (
     (7,"Domingo"),
     )
 
+
+
 duration_choices = (
     (15,"15 mins"),
     (30,"30 mins"),
@@ -106,36 +108,52 @@ def index(request):
 '''
 Programar un evento
 '''
+
+ndays_choices = {
+    "lunes":1,
+    "martes":2,
+    "miercoles":3,
+    "jueves":4,
+    "viernes":5,
+    "sabado":6,
+    "domingo":7,
+}
+
 class newProgramForm(forms.Form):
-    day = forms.ChoiceField(label="dia",choices=days_choices)
+    #day = forms.ChoiceField(label="dia",choices=days_choices)
+    lunes = forms.BooleanField(label="lunes",required=False)
+    martes = forms.BooleanField(label="martes",required=False)
+    miercoles = forms.BooleanField(label="miércoles",required=False)
+    jueves = forms.BooleanField(label="jueves",required=False)
+    viernes = forms.BooleanField(label="viernes",required=False)
+    sabado = forms.BooleanField(label="sabado",required=False)
+    domingo = forms.BooleanField(label="domingo",required=False)
+    duration = forms.ChoiceField(label="duración",choices=duration_choices)
     hour = forms.IntegerField(label="hora",min_value=1,max_value=24)
     minutes = forms.IntegerField(label="minutos",min_value=0,max_value=59)
-    duration = forms.ChoiceField(label="duración",choices=duration_choices)
-    #active = forms.BooleanField(label="activo",required=False)
-
-
 
 def addProgram(request):
     if request.method == "POST":
         form = newProgramForm(request.POST)
         if form.is_valid():
-            day = form.cleaned_data['day']
             hour = form.cleaned_data['hour']
             minutes = form.cleaned_data['minutes']
             duration = form.cleaned_data['duration']
-            Programs.objects.create(
-                day = day,
-                hour = hour,
-                minutes = minutes,
-                duration = duration,
-                active = True,
-            )
+            print(form.changed_data)
+            for day in ndays_choices:
+                if form.cleaned_data[day]:
+                    Programs.objects.create(
+                        day = ndays_choices[day],
+                        hour = hour,
+                        minutes = minutes,
+                        duration = duration,
+                        active = True,
+                    )
             return HttpResponseRedirect(reverse("index"))
     t = time.localtime()
     return render(request, "boiler/new_program.html", {
          "form" : newProgramForm(initial={'day':t.tm_wday+1})
     })   
-
 
 
 
